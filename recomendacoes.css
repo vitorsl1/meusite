@@ -110,3 +110,15 @@ footer {
   padding: 5px;
   font-size: 14px;
 }
+
+.spotify-wrapper {
+  max-width: 280px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.spotify-frame {
+  width: 100%;
+  border-radius: 12px;
+}
+
