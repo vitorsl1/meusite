@@ -1,6 +1,6 @@
 body {
   font-family: Arial, sans-serif;
-  background: linear-gradient(to bottom, #f5c27f, #d96b5f, #4c6fbf, #2f3a4d, #1b1025);
+  background-color: #f4f4f4;
   color: #333333;
   margin: 0;
   padding: 0;
@@ -121,5 +121,6 @@ footer {
   width: 100%;
   border-radius: 12px;
 }
+
 
 
