@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conversor de Tempo - Crimson Desert</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --overlay-top: rgba(8, 12, 18, 0.48);
+      --overlay-bottom: rgba(22, 16, 12, 0.82);
+
+      --glass: rgba(14, 18, 24, 0.58);
+      --glass-soft: rgba(28, 24, 19, 0.46);
+      --glass-strong: rgba(9, 12, 16, 0.80);
+
+      --border: rgba(210, 186, 144, 0.22);
+      --border-strong: rgba(226, 205, 165, 0.34);
+
+      --title: #efe2c7;
+      --subtitle: #d2c8b9;
+      --text: #f7f2e8;
+      --text-soft: #ccc3b6;
+      --text-muted: #a39a8e;
+
+      --accent: #b89b6e;
+      --accent-light: #e3cfaa;
+      --accent-dark: #7b6544;
+
+      --btn-main-1: #6b5942;
+      --btn-main-2: #b89b6d;
+      --btn-secondary: rgba(255,255,255,0.08);
+
+      --success: #d8c59d;
+      --shadow: rgba(0, 0, 0, 0.52);
+    }
+
+    body {
+      font-family: Georgia, "Times New Roman", serif;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        linear-gradient(180deg, var(--overlay-top), var(--overlay-bottom)),
+        url("https://s1.pearlcdn.com/cd/brand/media_GLOBAL/2025/03/19/cb3d999de6b20250319043323558.jpg");
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 980px;
+      border-radius: 30px;
+      overflow: hidden;
+      background: rgba(7, 10, 14, 0.36);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow:
+        0 30px 90px var(--shadow),
+        inset 0 1px 0 rgba(255,255,255,0.03);
+      animation: fadeUp 0.8s ease;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero {
+      padding: 50px 28px 26px;
+      text-align: center;
+      background: linear-gradient(
+        to bottom,
+        rgba(14, 18, 24, 0.28),
+        rgba(14, 18, 24, 0.08)
+      );
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .hero h1 {
+      font-size: 2.8rem;
+      color: var(--title);
+      text-shadow: 0 5px 22px rgba(0,0,0,0.42);
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      max-width: 760px;
+      margin: 0 auto 18px;
+      color: var(--subtitle);
+      line-height: 1.7;
+      font-size: 1rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: rgba(18, 22, 28, 0.46);
+      border: 1px solid var(--border-strong);
+      color: var(--accent-light);
+      font-size: 0.95rem;
+    }
+
+    .content {
+      padding: 26px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      flex: 1;
+      min-width: 220px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.06);
+      color: var(--text-soft);
+      cursor: pointer;
+      font-size: 0.98rem;
+      font-weight: bold;
+      transition: 0.2s ease;
+      text-align: center;
+    }
+
+    .tab:hover {
+      background: rgba(255,255,255,0.10);
+    }
+
+    .tab.active {
+      background: linear-gradient(135deg, rgba(107,89,66,0.92), rgba(184,155,109,0.92));
+      color: #fff8ee;
+      border-color: rgba(226, 205, 165, 0.26);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.16);
+    }
+
+    .panel {
+      display: none;
+      background: linear-gradient(180deg, var(--glass), var(--glass-soft));
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 26px;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.03),
+        0 12px 28px rgba(0,0,0,0.16);
+      animation: panelFade 0.25s ease;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    @keyframes panelFade {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .panel h2 {
+      font-size: 1.5rem;
+      color: var(--title);
+      margin-bottom: 10px;
+    }
+
+    .panel p {
+      color: var(--text-soft);
+      line-height: 1.65;
+      margin-bottom: 20px;
+      font-size: 0.98rem;
+    }
+
+    .field {
+      margin-bottom: 15px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--accent-light);
+      font-size: 0.95rem;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(227, 207, 170, 0.12);
+      background: rgba(10, 14, 18, 0.60);
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+      transition: 0.2s ease;
+    }
+
+    .field input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .field input:focus {
+      border-color: rgba(227, 207, 170, 0.35);
+      box-shadow: 0 0 0 4px rgba(184, 155, 109, 0.12);
+      background: rgba(10, 14, 18, 0.76);
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 13px 16px;
+      font-size: 0.98rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary {
+      background: linear-gradient(135deg, var(--btn-main-1), var(--btn-main-2));
+      color: #f9f4eb;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.18);
+      flex: 1;
+    }
+
+    .secondary {
+      background: var(--btn-secondary);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.08);
+      flex: 1;
+    }
+
+    .copy-btn {
+      background: rgba(216, 197, 157, 0.12);
+      color: var(--accent-light);
+      border: 1px solid rgba(216, 197, 157, 0.18);
+      flex: 1;
+    }
+
+    .result {
+      margin-top: 22px;
+      min-height: 138px;
+      padding: 18px;
+      border-radius: 18px;
+      background: linear-gradient(
+        180deg,
+        rgba(8, 12, 16, 0.74),
+        rgba(18, 16, 13, 0.66)
+      );
+      border: 1px solid rgba(184, 154, 106, 0.14);
+      color: var(--text);
+      line-height: 1.8;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+      transition: 0.25s ease;
+    }
+
+    .result.show {
+      animation: pulseIn 0.25s ease;
+    }
+
+    @keyframes pulseIn {
+      from {
+        opacity: 0.6;
+        transform: scale(0.99);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .result.empty {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .highlight {
+      color: var(--accent-light);
+      font-weight: bold;
+    }
+
+    .detail {
+      display: block;
+      margin-top: 8px;
+      color: var(--subtitle);
+      font-size: 0.92rem;
+    }
+
+    .copy-feedback {
+      margin-top: 10px;
+      color: var(--success);
+      font-size: 0.92rem;
+      display: none;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 0 26px 26px;
+      color: var(--subtitle);
+      font-size: 0.93rem;
+    }
+
+    .footer strong {
+      color: var(--accent-light);
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 14px;
+      }
+
+      .hero {
+        padding: 36px 18px 22px;
+      }
+
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .content {
+        padding: 18px;
+      }
+
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .tab {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="hero">
+      <h1>Conversor de Tempo - Crimson Desert</h1>
+      <p>
+        Converta o tempo entre a vida real e o universo de Crimson Desert com uma interface elegante,
+        rápida e inspirada na atmosfera épica do jogo.
+      </p>
+      <div class="badge">
+        <span>⏳</span>
+        <span>1 minuto no jogo = 5 segundos na vida real</span>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="tabs">
+        <div class="tab active" onclick="trocarAba('aba-jogo', this)">Vida real → Jogo</div>
+        <div class="tab" onclick="trocarAba('aba-real', this)">Jogo → Vida real</div>
+      </div>
+
+      <section class="panel active" id="aba-jogo">
+        <h2>Vida real → Jogo</h2>
+        <p>
+          Digite as horas da vida real para descobrir o equivalente em dias, horas e minutos dentro do jogo.
+        </p>
+
+        <div class="field">
+          <label for="horasReais">Horas da vida real</label>
+          <input type="number" id="horasReais" placeholder="Ex: 4.5" min="0" step="0.01">
+        </div>
+
+        <div class="actions">
+          <button class="primary" onclick="calcularTempoJogo()">Calcular no jogo</button>
+          <button class="secondary" onclick="limparRealParaJogo()">Limpar</button>
+          <button class="copy-btn" onclick="copiarResultado('resultadoJogo', 'feedbackJogo')">Copiar resultado</button>
+        </div>
+
+        <div class="result empty" id="resultadoJogo">
+          O resultado do tempo no jogo aparecerá aqui.
+        </div>
+        <div class="copy-feedback" id="feedbackJogo">Resultado copiado com sucesso.</div>
+      </section>
+
+      <section class="panel" id="aba-real">
+        <h2>Jogo → Vida real</h2>
+        <p>
+          Informe dias, horas e minutos em Crimson Desert para descobrir o tempo equivalente na vida real.
+        </p>
+
+        <div class="grid-3">
+          <div class="field">
+            <label for="diasJogo">Dias</label>
+            <input type="number" id="diasJogo" placeholder="Ex: 1" min="0" step="1">
+          </div>
+
+          <div class="field">
+            <label for="horasJogo">Horas</label>
+            <input type="number" id="horasJogo" placeholder="Ex: 12" min="0" step="1">
+          </div>
+
+          <div class="field">
+            <label for="minutosJogo">Minutos</label>
+            <input type="number" id="minutosJogo" placeholder="Ex: 30" min="0" step="1">
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" onclick="calcularTempoReal()">Calcular na vida real</button>
+          <button class="secondary" onclick="limparJogoParaReal()">Limpar</button>
+          <button class="copy-btn" onclick="copiarResultado('resultadoReal', 'feedbackReal')">Copiar resultado</button>
+        </div>
+
+        <div class="result empty" id="resultadoReal">
+          O resultado do tempo na vida real aparecerá aqui.
+        </div>
+        <div class="copy-feedback" id="feedbackReal">Resultado copiado com sucesso.</div>
+      </section>
+    </div>
+
+    <footer class="footer">
+      Dica: o cálculo é feito automaticamente ao digitar. Você também pode pressionar <strong>Enter</strong>.
+    </footer>
+  </div>
+
+  <script>
+    function formatarNumero(valor) {
+      return Number(valor).toLocaleString("pt-BR");
+    }
+
+    function animarResultado(elemento) {
+      elemento.classList.remove("show");
+      void elemento.offsetWidth;
+      elemento.classList.add("show");
+    }
+
+    function trocarAba(id, botao) {
+      document.querySelectorAll(".panel").forEach(painel => {
+        painel.classList.remove("active");
+      });
+
+      document.querySelectorAll(".tab").forEach(tab => {
+        tab.classList.remove("active");
+      });
+
+      document.getElementById(id).classList.add("active");
+      botao.classList.add("active");
+    }
+
+    function calcularTempoJogo() {
+      const horasReais = parseFloat(document.getElementById("horasReais").value);
+      const resultado = document.getElementById("resultadoJogo");
+
+      if (isNaN(horasReais) || horasReais < 0) {
+        resultado.classList.remove("empty");
+        resultado.innerHTML = "Por favor, insira uma quantidade válida de horas da vida real.";
+        animarResultado(resultado);
+        return;
+      }
+
+      const segundosReais = horasReais * 3600;
+      const minutosJogoTotais = segundosReais / 5;
+
+      const dias = Math.floor(minutosJogoTotais / 1440);
+      const restoAposDias = minutosJogoTotais % 1440;
+      const horas = Math.floor(restoAposDias / 60);
+      const minutos = Math.floor(restoAposDias % 60);
+
+      resultado.classList.remove("empty");
+      resultado.innerHTML = `
+        <span class="highlight">${horasReais.toFixed(2)} hora(s) reais</span><br>
+        equivalem a <span class="highlight">${formatarNumero(dias)}</span> dia(s),
+        <span class="highlight">${formatarNumero(horas)}</span> hora(s) e
+        <span class="highlight">${formatarNumero(minutos)}</span> minuto(s) no jogo.
+        <span class="detail">
+          Tempo total no jogo: ${formatarNumero(Math.floor(minutosJogoTotais))} minuto(s).
+        </span>
+      `;
+      animarResultado(resultado);
+    }
+
+    function calcularTempoReal() {
+      const diasJogo = parseInt(document.getElementById("diasJogo").value) || 0;
+      const horasJogo = parseInt(document.getElementById("horasJogo").value) || 0;
+      const minutosJogo = parseInt(document.getElementById("minutosJogo").value) || 0;
+      const resultado = document.getElementById("resultadoReal");
+
+      if (diasJogo < 0 || horasJogo < 0 || minutosJogo < 0) {
+        resultado.classList.remove("empty");
+        resultado.innerHTML = "Por favor, insira apenas valores positivos.";
+        animarResultado(resultado);
+        return;
+      }
+
+      if (diasJogo === 0 && horasJogo === 0 && minutosJogo === 0) {
+        resultado.classList.remove("empty");
+        resultado.innerHTML = "Informe pelo menos um valor de tempo no jogo.";
+        animarResultado(resultado);
+        return;
+      }
+
+      const totalMinutosJogo = (diasJogo * 1440) + (horasJogo * 60) + minutosJogo;
+      const totalSegundosReais = totalMinutosJogo * 5;
+
+      const horasReais = Math.floor(totalSegundosReais / 3600);
+      const minutosReais = Math.floor((totalSegundosReais % 3600) / 60);
+      const segundosReais = Math.floor(totalSegundosReais % 60);
+
+      resultado.classList.remove("empty");
+      resultado.innerHTML = `
+        <span class="highlight">${formatarNumero(diasJogo)}</span> dia(s),
+        <span class="highlight">${formatarNumero(horasJogo)}</span> hora(s) e
+        <span class="highlight">${formatarNumero(minutosJogo)}</span> minuto(s) no jogo<br>
+        equivalem a <span class="highlight">${formatarNumero(horasReais)}</span> hora(s),
+        <span class="highlight">${formatarNumero(minutosReais)}</span> minuto(s) e
+        <span class="highlight">${formatarNumero(segundosReais)}</span> segundo(s) na vida real.
+        <span class="detail">
+          Tempo total na vida real: ${formatarNumero(totalSegundosReais)} segundo(s).
+        </span>
+      `;
+      animarResultado(resultado);
+    }
+
+    function limparRealParaJogo() {
+      document.getElementById("horasReais").value = "";
+      const resultado = document.getElementById("resultadoJogo");
+      resultado.classList.add("empty");
+      resultado.innerHTML = "O resultado do tempo no jogo aparecerá aqui.";
+    }
+
+    function limparJogoParaReal() {
+      document.getElementById("diasJogo").value = "";
+      document.getElementById("horasJogo").value = "";
+      document.getElementById("minutosJogo").value = "";
+      const resultado = document.getElementById("resultadoReal");
+      resultado.classList.add("empty");
+      resultado.innerHTML = "O resultado do tempo na vida real aparecerá aqui.";
+    }
+
+    function copiarResultado(idResultado, idFeedback) {
+      const texto = document.getElementById(idResultado).innerText.trim();
+      const feedback = document.getElementById(idFeedback);
+
+      if (!texto || texto.includes("aparecerá aqui")) return;
+
+      navigator.clipboard.writeText(texto).then(() => {
+        feedback.style.display = "block";
+        setTimeout(() => {
+          feedback.style.display = "none";
+        }, 2000);
+      });
+    }
+
+    document.getElementById("horasReais").addEventListener("input", calcularTempoJogo);
+    document.getElementById("diasJogo").addEventListener("input", calcularTempoReal);
+    document.getElementById("horasJogo").addEventListener("input", calcularTempoReal);
+    document.getElementById("minutosJogo").addEventListener("input", calcularTempoReal);
+
+    document.addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        const ativo = document.activeElement;
+
+        if (ativo.id === "horasReais") {
+          calcularTempoJogo();
+        }
+
+        if (
+          ativo.id === "diasJogo" ||
+          ativo.id === "horasJogo" ||
+          ativo.id === "minutosJogo"
+        ) {
+          calcularTempoReal();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
